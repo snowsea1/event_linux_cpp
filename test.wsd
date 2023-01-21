@@ -1,0 +1,74 @@
+@startuml
+class Voice_service {
+  Base_loop base_loop;
+  Config config;
+  Fsm fsm;
+  Audio_manage audio_manage;
+  void voice_service_init();
+}
+
+
+class Base_loop {
+
+
+    Base_timer base_timer;
+    base_tmr_hdl_t base_tmr_hdl;
+
+    int base_loop_init(); /* 初始化 base事件 */
+    int base_loop_callback(int module_id, callback_t handler); /* 回调注册； event:  */
+    int base_post_request_async(int module_id, const void* req, unsigned int size, prot_rsp_cb_t routine, const void* priv);
+
+    void base_start_tmr(base_tmr_hdl_t hdl, base_tmr_t *tmr, timer_func_t func, base_ms_t to);
+    void base_start_tmr_with_data(base_tmr_hdl_t hdl, base_tmr_t *tmr, timer_func_t func, base_ms_t to, void *d);
+
+
+}
+
+
+class Fsm {
+    {method} int init();
+    {method} int send_event(int event);
+    {method} int get_status();
+}
+
+class Audio_manage {
+
+    void audio_init();
+    void audio_input(void *data, int len);
+}
+
+Voice_service --* Base_loop
+Voice_service --* Fsm
+Voice_service --* Audio_manage
+
+
+@enduml
+
+
+
+class Config {
+
+
+    +int config_init();
+    +string config_read(string key);
+    +int config_write(string key, string value);
+
+--
+    -map<string, string> map_config;
+--
+    -bool is_space(char c);
+    -void remove_space(string &str);
+    -bool analyse_line(const string &line, string &key, string &value);
+    -bool read_config(const string &filename, map<string, string> &map);
+    -void print_config(const map<string, string> &map_data);
+}
+
+class Fsm{
+    +int init();
+    +int send_event(int event);
+    +int get_status();
+--
+    -int current_status;
+    -int notice_status();
+--
+}
